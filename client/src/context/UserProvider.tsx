@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL || "";
 
 interface UserInterface {
   _id: string;
