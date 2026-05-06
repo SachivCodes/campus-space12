@@ -2,9 +2,17 @@ import express, { Request, Response } from "express";
 import errorHandler from "./src/middlewares/error.middleware";
 import { UserInterface } from "./src/models/user.model";
 import path from "path";
-
+import cors from "cors"; 
 const app = express();
-
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      process.env.CORS_ORIGIN || "",
+    ],
+    credentials: true,
+  })
+);
 declare module "express" {
   interface Request {
     user?: UserInterface;
