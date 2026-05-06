@@ -1,10 +1,9 @@
-import { Button } from "./ui/button";
 import logo from "../assets/logo.svg";
-import { ModeToggle } from "./ModeToggle";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Equal, X } from "lucide-react";
+import { Equal, X, LogOut, Moon, Sun } from "lucide-react";
 import React from "react";
 import { useUser } from "../context/UserProvider";
+import { useTheme } from "@/context/ThemeProvider";
 
 function Navbar() {
   const { tokenKey, setUser, user } = useUser();
@@ -13,278 +12,151 @@ function Navbar() {
   const location = useLocation();
   const title = import.meta.env.VITE_COLLEGE_NAME;
   const logoLink = import.meta.env.VITE_LOGO;
-  logoLink ? logoLink : logo;
+  const { theme, setTheme } = useTheme();
+
+  const isAdmin = location.pathname.includes("/admin");
+  const isBookroom = location.pathname.includes("/bookroom");
+
+  function handleLogout() {
+    navigate("/");
+    localStorage.removeItem(tokenKey);
+    setUser({ ...user, _id: "" });
+  }
 
   return (
     <>
-       <nav className="flex flex-row justify-between items-center px-4 h-16  sticky top-0 z-20 
-          border-b-2 border-gray-300 dark:border-gray-600  backdrop-blur bg-transparent" 
-          >
-        <span className="flex gap-4 items-center">
-          <Button
-            size="icon"
-            variant="secondary"
-            className={`md:hidden dark:bg-zinc-900 ring-1 dark:ring-zinc-600 ring-zinc-100 ${
-              location.pathname.includes("/bookroom") ? "hidden" : ""
-            }`}
-            onClick={() => setOpenNav(!openNav)}
-          >
-            {openNav ? <X /> : <Equal />}
-          </Button>
-          <Link to="/" className="flex flex-row gap-2 items-center">
-            <img src={logoLink ? logoLink : logo} alt="" className="w-10 object-contain" />
-            <span>{title || "Campus Space"}</span>
-          </Link>
-          <span
-            className={
-              location.pathname.includes("/bookroom")
-                ? "absolute right-4 flex gap-4 items-center"
-                : "hidden"
-            }
-          >
-            <Button
-              variant="destructive"
-              onClick={() => {
-                navigate("/");
-                localStorage.removeItem(tokenKey);
-                setUser({ ...user, _id: "" });
-              }}
-            >
-              Logout
-            </Button>
-            <ModeToggle />
-          </span>
-        </span>
-        <ul
-          className={`${
-            location.pathname.includes("/admin") ||
-            location.pathname.includes("/bookroom")
-              ? "hidden"
-              : ""
-          } flex gap-2`}
-        >
-          <li>
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/")}
-              className="hidden md:flex dark:hover:bg-zinc-700"
-            >
-              Vacant Rooms
-            </Button>
-          </li>
-          <li>
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/timetable")}
-              className="hidden md:flex dark:hover:bg-zinc-700"
-            >
-              Timetable
-            </Button>
-          </li>
-          <li>
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/teachersabsent")}
-              className="hidden md:flex dark:hover:bg-zinc-700"
-            >
-              Teachers Absent
-            </Button>
-          </li>
-          <li>
-            <Button
-              onClick={() => navigate("/login")}
-              className="hidden md:flex "
-            >
-              Login
-            </Button>
-          </li>
-          <li>
-            <ModeToggle />
-          </li>
-        </ul>
-        <ul
-          className={`${
-            location.pathname.includes("/admin") ? "" : "hidden"
-          } flex gap-2`}
-        >
-          <li>
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/admin/timetable")}
-              className="hidden md:flex dark:hover:bg-zinc-700"
-            >
-              Timetable
-            </Button>
-          </li>
-          <li>
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/admin/teachersabsent")}
-              className="hidden md:flex dark:hover:bg-zinc-700"
-            >
-              Teachers Absent
-            </Button>
-          </li>
-          <li>
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/admin/register")}
-              className="hidden md:flex dark:hover:bg-zinc-700"
-            >
-              Register Teacher
-            </Button>
-          </li>
-          <li>
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/admin/addroom")}
-              className="hidden md:flex dark:hover:bg-zinc-700"
-            >
-              Rooms
-            </Button>
-          </li>
-          <li>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                navigate("/");
-                localStorage.removeItem(tokenKey);
-                setUser({ ...user, _id: "" });
-              }}
-              className="hidden md:flex"
-            >
-              Logout
-            </Button>
-          </li>
-          <li>
-            <ModeToggle />
-          </li>
-        </ul>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap');
+        .nav-root {
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          width: 100%;
+          height: 60px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 24px;
+          background: rgba(10,10,15,0.85);
+          backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          font-family: 'DM Sans', sans-serif;
+        }
+        .nav-brand {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          text-decoration: none;
+          color: white;
+          font-size: 15px;
+          font-weight: 500;
+          letter-spacing: 0.01em;
+        }
+        .nav-brand img { width: 28px; height: 28px; object-fit: contain; opacity: 0.9; }
+        .nav-links { display: flex; align-items: center; gap: 4px; }
+        .nav-link {
+          padding: 7px 14px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 400;
+          color: rgba(255,255,255,0.5);
+          text-decoration: none;
+          background: none;
+          border: none;
+          cursor: pointer;
+          transition: all 0.15s;
+          font-family: 'DM Sans', sans-serif;
+          letter-spacing: 0.01em;
+        }
+        .nav-link:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.05); }
+        .nav-link.active { color: white; background: rgba(255,255,255,0.08); }
+        .nav-btn-logout {
+          padding: 7px 14px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 500;
+          color: rgba(255,100,100,0.8);
+          background: rgba(255,60,60,0.08);
+          border: 1px solid rgba(255,60,60,0.15);
+          cursor: pointer;
+          transition: all 0.15s;
+          font-family: 'DM Sans', sans-serif;
+          display: flex; align-items: center; gap: 6px;
+        }
+        .nav-btn-logout:hover { background: rgba(255,60,60,0.15); color: rgba(255,120,120,1); }
+        .nav-theme-btn {
+          width: 34px; height: 34px;
+          display: flex; align-items: center; justify-content: center;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          color: rgba(255,255,255,0.4);
+          cursor: pointer;
+          transition: all 0.15s;
+          margin-left: 4px;
+        }
+        .nav-theme-btn:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
+        .nav-hamburger {
+          width: 34px; height: 34px;
+          display: none; align-items: center; justify-content: center;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          color: rgba(255,255,255,0.6);
+          cursor: pointer;
+        }
+        @media (max-width: 768px) {
+          .nav-links { display: none; }
+          .nav-hamburger { display: flex; }
+          .nav-links.mobile-open {
+            display: flex; flex-direction: column;
+            position: absolute; top: 60px; left: 0; right: 0;
+            background: rgba(10,10,15,0.97);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 12px 16px;
+            gap: 4px;
+          }
+          .nav-links.mobile-open .nav-link { width: 100%; text-align: left; }
+        }
+      `}</style>
+      <nav className="nav-root">
+        <Link to="/" className="nav-brand">
+          <img src={logoLink || logo} alt="" />
+          {title || "Campus Space"}
+        </Link>
+
+        <div className={`nav-links ${openNav ? "mobile-open" : ""}`}>
+          {!isAdmin && !isBookroom && (
+            <>
+              <button className={`nav-link ${location.pathname === "/" ? "active" : ""}`} onClick={() => { navigate("/"); setOpenNav(false); }}>Vacant Rooms</button>
+              <button className={`nav-link ${location.pathname === "/timetable" ? "active" : ""}`} onClick={() => { navigate("/timetable"); setOpenNav(false); }}>Timetable</button>
+              <button className={`nav-link ${location.pathname === "/teachersabsent" ? "active" : ""}`} onClick={() => { navigate("/teachersabsent"); setOpenNav(false); }}>Teachers Absent</button>
+              <button className={`nav-link ${location.pathname === "/login" ? "active" : ""}`} onClick={() => { navigate("/login"); setOpenNav(false); }}>Login</button>
+            </>
+          )}
+          {isAdmin && (
+            <>
+              <button className={`nav-link ${location.pathname.includes("teachersabsent") ? "active" : ""}`} onClick={() => { navigate("/admin/teachersabsent"); setOpenNav(false); }}>Teachers Absent</button>
+              <button className={`nav-link ${location.pathname.includes("timetable") ? "active" : ""}`} onClick={() => { navigate("/admin/timetable"); setOpenNav(false); }}>Timetable</button>
+              <button className={`nav-link ${location.pathname.includes("register") ? "active" : ""}`} onClick={() => { navigate("/admin/register"); setOpenNav(false); }}>Register Teacher</button>
+              <button className={`nav-link ${location.pathname.includes("addroom") ? "active" : ""}`} onClick={() => { navigate("/admin/addroom"); setOpenNav(false); }}>Rooms</button>
+              <button className="nav-btn-logout" onClick={handleLogout}><LogOut size={14} />Logout</button>
+            </>
+          )}
+          {isBookroom && (
+            <button className="nav-btn-logout" onClick={handleLogout}><LogOut size={14} />Logout</button>
+          )}
+          <button className="nav-theme-btn" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+            {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <button className="nav-hamburger" onClick={() => setOpenNav(!openNav)}>
+            {openNav ? <X size={16} /> : <Equal size={16} />}
+          </button>
+        </div>
       </nav>
-      <ul
-        className={`flex flex-col absolute transition-transform duration-300 z-10 border-b-2 border-gray-300 dark:border-gray-700 w-full " 
-      ${openNav ? "-translate-y-0" : "-translate-y-64"} ${
-          location.pathname.includes("/admin") ? "hidden" : ""
-        }`}
-      >
-        <li>
-          <Button
-            variant="outline"
-            onClick={() => {
-              navigate("/");
-              setOpenNav(!openNav);
-            }}
-            className="md:hidden w-full rounded-none py-5 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 hover:dark:bg-zinc-600"
-          >
-            Vacant Rooms
-          </Button>
-        </li>
-        <li>
-          <Button
-            variant="outline"
-            onClick={() => {
-              navigate("/timetable");
-              setOpenNav(!openNav);
-            }}
-            className="md:hidden w-full rounded-none py-5 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 hover:dark:bg-zinc-600"
-          >
-            Timetable
-          </Button>
-        </li>
-        <li>
-          <Button
-            variant="outline"
-            onClick={() => {
-              navigate("/teachersabsent");
-              setOpenNav(!openNav);
-            }}
-            className="md:hidden w-full rounded-none py-5 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 hover:dark:bg-zinc-600"
-          >
-            Teachers Absent
-          </Button>
-        </li>
-        <li>
-          <Button
-            variant="outline"
-            onClick={() => {
-              navigate("/login");
-              setOpenNav(!openNav);
-            }}
-            className="md:hidden w-full rounded-none py-5 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 hover:dark:bg-zinc-600 text-green-500"
-          >
-            Login
-          </Button>
-        </li>
-      </ul>
-      <ul
-        className={`flex flex-col absolute transition-transform duration-300 z-10 border-b-2 border-gray-300 dark:border-gray-700 w-full " 
-      ${openNav ? "-translate-y-0" : "-translate-y-64"} ${
-          location.pathname.includes("/admin") ? "" : "hidden"
-        }`}
-      >
-        <li>
-          <Button
-            variant="outline"
-            onClick={() => {
-              navigate("/admin/timetable");
-              setOpenNav(!openNav);
-            }}
-            className="md:hidden w-full rounded-none py-5 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 hover:dark:bg-zinc-600"
-          >
-            Timetable
-          </Button>
-        </li>
-        <li>
-          <Button
-            variant="outline"
-            onClick={() => {
-              navigate("/admin/teachersabsent");
-              setOpenNav(!openNav);
-            }}
-            className="md:hidden w-full rounded-none py-5 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 hover:dark:bg-zinc-600"
-          >
-            Teachers Absent
-          </Button>
-        </li>
-        <li>
-          <Button
-            variant="outline"
-            onClick={() => {
-              navigate("/admin/register");
-              setOpenNav(!openNav);
-            }}
-            className="md:hidden w-full rounded-none py-5 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 hover:dark:bg-zinc-600"
-          >
-            Register Teacher
-          </Button>
-        </li>
-        <li>
-          <Button
-            variant="outline"
-            onClick={() => {
-              navigate("/admin/addroom");
-              setOpenNav(!openNav);
-            }}
-            className="md:hidden w-full rounded-none py-5 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 hover:dark:bg-zinc-600"
-          >
-            Rooms
-          </Button>
-        </li>
-        <li>
-          <Button
-            variant="outline"
-            onClick={() => {
-              navigate("/");
-              setOpenNav(!openNav);
-              localStorage.removeItem(tokenKey);
-              setUser({ ...user, _id: "" });
-            }}
-            className="md:hidden w-full rounded-none py-5 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 hover:dark:bg-zinc-600 text-red-500"
-          >
-            Logout
-          </Button>
-        </li>
-      </ul>
     </>
   );
 }
